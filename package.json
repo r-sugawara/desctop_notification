@@ -1,0 +1,19 @@
+{
+  "name": "vagrant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "front.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github/r-sugawara/desctop_notification.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
