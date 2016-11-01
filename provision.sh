@@ -6,7 +6,7 @@ systemctl stop firewalld
 
 yum -y install nginx
 
-cp /vagrant/virtual.conf /etc/nginx/conf.d/
+cp /vagrant/*.conf /etc/nginx/conf.d/
 
 chkconfig nginx on
 service nginx start
