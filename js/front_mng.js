@@ -3,5 +3,6 @@ window.addEventListener('load', function(){
 });
 
 function sendMessage(){
-    $
+    message = document.getElementById('message');
+    
 }

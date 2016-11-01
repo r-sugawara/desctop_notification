@@ -1,9 +1,9 @@
 var http = require('http');
 var fs = require('fs');
-var webpush = require('web-push');
+const webpush = require('web-push');
 var fetch = require('node-fetch');
 var jsonObj = null;
-const apiKey = 'AIzaSyDe01-pbz-ohFGxwUEIt77B8gFS_G3zgk4';
+const apiKey = 'AIzaSyBxVBLQyEIX6rRy5upkg5HRiG8ELFV_zro';
 
 const vapidKeys = webpush.generateVAPIDKeys();
 
@@ -43,7 +43,7 @@ http.createServer(function (req, res) {
       privateKey
     );
     
-    /*const options = {
+    var options = {
       gcmAPIKey: apiKey,
       vapidDetails: {
         subject: 'mailto:sgwrryusk@gmail.com',
@@ -51,9 +51,9 @@ http.createServer(function (req, res) {
         privateKey: privateKey,
       },
       TTL: 86400
-    };*/
+    };
 
-    const pushSubscription = {
+    var pushSubscription = {
       endpoint : jsonObj.endpoint,
       keys: {
         auth : jsonObj.auth,
@@ -65,15 +65,14 @@ http.createServer(function (req, res) {
       jsonObj.auth,
       'push_test'
     ));
+
     
-    var details = webpush.generateRequestDetails(pushSubscription, 'push_Test', options);
-    console.log(details);
-    //fetch(jsonObj.endpoint, pushSubscription).then(function(result){console.log(result)});
-    try{
-      //var details = webpush.sendNotification(pushSubscription, payload, options).then(function(result){console.log(result)}).catch(function(error){console.log(error)});
-    }catch(error){
-      console.log(error);
-    }
+  webpush.sendNotification(pushSubscription, 'testest', options).then(function(result){
+    console.log(result);
+  }).catch(function(error){
+    console.log(error);
+  });
+
   });
 
   res.writeHead(200, {

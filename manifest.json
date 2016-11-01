@@ -9,7 +9,7 @@
   "permissions": [
   "gcm", "fcm"
   ],
-  "start_url": "index.html",
+  "start_url": "localhost:8080",
   "display": "standalone",
-  "gcm_sender_id": "337235515908"
+  "gcm_sender_id": "932785668085"
 }

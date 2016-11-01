@@ -3,19 +3,6 @@ var subscription = null;
 window.addEventListener('load', function() {
     document.getElementById('register').addEventListener('click', register, false);
     document.getElementById('push').addEventListener('click', setPush , false);
-    fetch('http://localhost:8080/vapidkey').then(function(response){
-        return response.text();
-    }).then(function(text){
-        let serverKey = decodeBase64URL(text);
-        /*fetch('http://localhost:8000/registkey', {
-          credentials: 'include',
-          method: 'POST',
-          headers: { 'Content-Type': 'multipart/form-data; charset=UTF-8' },
-          body: JSON.stringify({
-            serverKey: serverKey
-          })
-        });*/
-    });
     navigator.serviceWorker.ready.then(checkPush);
 }, false);
 
@@ -34,13 +21,6 @@ function checkNotification() {
         }
     });
 }
-
-function getPublicKey(sub){
-    var key = btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_');
-    uaKey = key;
-    return key;
-};
-
 
 function checkPush(sw) {
     sw.pushManager.getSubscription().then(setSubscription, resetSubscription);
@@ -80,16 +60,17 @@ function setPush() {
 }
 
 function subscribe(sw) {
-    fetch('http://localhost:8080/vapidkey').then(function(response){
-        return response.text();
-    }).then(function(text){
-        let serverKey = decodeBase64URL(text);
-        sw.pushManager.subscribe({
-           userVisibleOnly: true,
-           applicationServerKey: serverKey
-        }).then(setSubscription);
-    });
+  fetch('http://localhost:8080/vapidkey').then(function(response){
+      return response.text();
+  }).then(function(key){
+      publickey = decodeBase64URL(key);
+    sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: publickey
+    }).then(setSubscription, resetSubscription);
+  });
 }
+
 
 function unsubscribe() {
     if(subscription) {
@@ -117,21 +98,12 @@ navigator.serviceWorker.ready.then(function(sw) {
       headers: { 'Content-Type': 'multipart/form-data; charset=UTF-8' },
       body: JSON.stringify({
         endpoint: sub.endpoint,
-        p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_'),
-        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth')))).replace(/\+/g, '-').replace(/\//g, '_')
+        p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth')))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
       })
     });
   });
 });
-
-function encodeBase64URL(data) {
-  if(!(data instanceof Uint8Array))
-    return null;
-  let output = '';
-  for(let i = 0 ; i < data.length ; i++)
-    output += String.fromCharCode(data[i]);
-  return btoa(data.replace(/\+/g, '-').replace(/\//g, '_')).replace(/=+$/, '');
-}
 
 function decodeBase64URL(data) {
   if(typeof data !== 'string')

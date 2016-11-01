@@ -6,11 +6,13 @@ http.createServer(function (req, res) {
     var extention = req.url.split('.')[1];
     if(req.url == '/vapidkey'){
       res.writeHead(200, {'content-Type': 'text/plain'});
+      
       /*var vapidKeys = webpush.generateVAPIDKeys();
       fs.writeFile('privateKey/privateKey.txt', vapidKeys.privateKey);
       fs.writeFile('publicKey/publicKey.txt', vapidKeys.publicKey);
       */
-      var publicKey = fs.readFile('publicKey/publicKey.txt');
+      var publicKey = fs.readFileSync('publicKey/publicKey.txt', 'utf-8');
+      console.log(publicKey);
       res.end(publicKey);
     }
     var content_type = 'text/plain';
