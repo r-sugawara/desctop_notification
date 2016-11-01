@@ -4,11 +4,14 @@ var fs = require('fs');
 http.createServer(function (req, res) {
   fs.readFile('.' + req.url , 'UTF-8', function(err, data){
     var extention = req.url.split('.')[1];
-    console.log(req.url);
     if(req.url == '/vapidkey'){
       res.writeHead(200, {'content-Type': 'text/plain'});
       var vapidKeys = webpush.generateVAPIDKeys();
+      fs.writeFile('privateKey/privateKey.txt', vapidKeys.privateKey);
+      fs.writeFile('publicKey/publicKey.txt', vapidKeys.publicKey);
       res.end(vapidKeys.publicKey);
+    }else if(req.url == '/push'){
+      var jwtHeader = encodeBase64URL({"typ": "JWT", "alg": "ES256"});
     }
     var content_type = 'text/plain';
     switch(extention){
@@ -26,3 +29,23 @@ http.createServer(function (req, res) {
     res.end(data);
   });
 }).listen(2000, '127.0.0.1');
+
+function encodeBase64URL(data) {
+  let output = '';
+  for(i in data){
+    output += String.fromCharCode(data[i]);
+  }
+  return btoa(output.replace(/\+/g, '-').replace(/\//g, '_')).replace(/=+$/, '');
+}
+
+function btoa(str) {  
+  var buffer;
+  if (Buffer.isBuffer(str)) {
+    buffer = str;
+  }
+  else {
+    buffer = new Buffer(str.toString(), 'binary');
+  }
+
+  return buffer.toString('base64');
+};

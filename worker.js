@@ -1,9 +1,8 @@
 var http = require('http');
-//var express = require('express');
-const webpush = require('web-push');
+var fs = require('fs');
+var webpush = require('web-push');
 var fetch = require('node-fetch');
-var request = require('request');
-
+var jsonObj = null;
 const apiKey = 'AIzaSyBYlXCvvUrTCYR-F8POnPTinEXXgONcAnQ';
 
 const vapidKeys = webpush.generateVAPIDKeys();
@@ -15,13 +14,15 @@ webpush.setVapidDetails(
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
-
+var privateKey = fs.readFile('privateKey/privateKey.txt');
+var publicKey = fs.readFile('publicKey/publicKey.txt');
+console.log(privateKey);
 const options = {
   gcmAPIKey: apiKey,
   vapidDetails: {
     subject: 'mailto:sgwrryusk@gmail.com',
-    publicKey: vapidKeys.publicKey,
-    privateKey: vapidKeys.privateKey,
+    publicKey: publicKey,
+    privateKey: privateKey,
   }
 };
 
@@ -30,29 +31,39 @@ http.createServer(function (req, res) {
 
   req.on('data', function (chunk) {
     body += chunk;
-  });
-  req.on('end', function () {
-    var jsonObj = JSON.parse(body);
-    console.log(jsonObj);
-  });
-  
-  const pushSubscription = {
-    endpoint : 'https://android.googleapis.com/gcm/send/c5caDHlgI28:APA91bECC0M1RUZMDlefE4WWfvoNjB4unVpKtCzS1TIp8JCEsf9g30LjM9vWg-wIa60dpXogybJUyfsMPL-qIuMxClBTMjFWacyhtsaDcRFOR5tPavnOBhUNtn5-QSOoeanc0dy8WqWX',//body.endpoint,
-    keys: {
-      auth : 'W3_S6mTzJuYRSxNN1lSuRA==',//body.auth,
-      p256dh : 'BLio321ENURINe4OCGtmpUedL10zmTJCismaWzSI1TyFhECMlaLAbptzeOFW4g34IYGM51iQSJYfCGPzp1IGZnM='//body.p256dh
-    }  
-  };
-  var encryptedData = JSON.stringify(webpush.encrypt(
-    pushSubscription.keys.p256dh,
-    pushSubscription.keys.auth,
-    'push_test'
-  ));
+    jsonObj = JSON.parse(body);
+    
+    if(req.url == '/registkey'){
+      fs.writeFile('publicKey/publicKey.txt', encodeBase64URL(jsonObj.serverKey));
+    }
+    var privateKey = fs.readFileSync('privateKey/privateKey.txt', 'utf-8');
+    var publicKey = fs.readFileSync('publicKey/publicKey.txt', 'utf-8');
+    
+    const options = {
+      gcmAPIKey: apiKey,
+      vapidDetails: {
+        subject: 'mailto:sgwrryusk@gmail.com',
+        publicKey: publicKey,
+        privateKey: privateKey,
+      }
+    };
+    const pushSubscription = {
+      endpoint : jsonObj.endpoint,
+      keys: {
+        auth : jsonObj.auth,
+        p256dh : jsonObj.p256dh
+      }  
+    };
+    
+    var encryptedData = JSON.stringify(webpush.encrypt(
+      pushSubscription.keys.p256dh,
+      pushSubscription.keys.auth,
+      'push_test'
+    ));
 
-  const detail = webpush.generateRequestDetails(pushSubscription, encryptedData, options);
-  
-  fetch(pushSubscription.endpoint, detail);
-  
+    const detail = webpush.sendNotification(pushSubscription, 'push_Test', options);
+    console.log(detail);
+  });
   res.writeHead(200, {
     'Content-Type': 'text/json',
     'Access-Control-Allow-Origin': 'http://localhost:8080',
@@ -60,5 +71,25 @@ http.createServer(function (req, res) {
     'Access-Control-Allow-Headers': 'Content-Type'
   });
   
-  res.end(vapidKeys.publicKey);
+  res.end('publicKey');
 }).listen(3000, '127.0.0.1');
+
+function encodeBase64URL(data) {
+  let output = '';
+  for(i in data){
+    output += String.fromCharCode(data[i]);
+  }
+  return btoa(output.replace(/\+/g, '-').replace(/\//g, '_')).replace(/=+$/, '');
+}
+
+function btoa(str) {  
+  var buffer;
+  if (Buffer.isBuffer(str)) {
+    buffer = str;
+  }
+  else {
+    buffer = new Buffer(str.toString(), 'binary');
+  }
+
+  return buffer.toString('base64');
+};
