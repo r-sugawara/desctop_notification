@@ -6,6 +6,9 @@
     "sizes": "256x256",
     "type": "image/png"
   }],
+  "permissions": [
+  "gcm", "fcm"
+  ],
   "start_url": "index.html",
   "display": "standalone",
   "gcm_sender_id": "337235515908"

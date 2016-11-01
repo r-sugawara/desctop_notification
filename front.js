@@ -76,7 +76,7 @@ function setPush() {
 function subscribe(sw) {
     sw.pushManager.subscribe({
         userVisibleOnly: true,
-        //applicationServerKey: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_')
+        applicationServerKey: new Unit8Array(serverKey)//btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_')
     }).then(setSubscription);
 }
 

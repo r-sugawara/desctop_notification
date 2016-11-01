@@ -6,12 +6,12 @@ http.createServer(function (req, res) {
     var extention = req.url.split('.')[1];
     if(req.url == '/vapidkey'){
       res.writeHead(200, {'content-Type': 'text/plain'});
-      var vapidKeys = webpush.generateVAPIDKeys();
+      /*var vapidKeys = webpush.generateVAPIDKeys();
       fs.writeFile('privateKey/privateKey.txt', vapidKeys.privateKey);
       fs.writeFile('publicKey/publicKey.txt', vapidKeys.publicKey);
-      res.end(vapidKeys.publicKey);
-    }else if(req.url == '/push'){
-      var jwtHeader = encodeBase64URL({"typ": "JWT", "alg": "ES256"});
+      */
+      var publicKey = fs.readFile('publicKey/publicKey.txt');
+      res.end(publicKey);
     }
     var content_type = 'text/plain';
     switch(extention){

@@ -3,20 +3,17 @@ var fs = require('fs');
 var webpush = require('web-push');
 var fetch = require('node-fetch');
 var jsonObj = null;
-const apiKey = 'AIzaSyBYlXCvvUrTCYR-F8POnPTinEXXgONcAnQ';
+const apiKey = 'AIzaSyDe01-pbz-ohFGxwUEIt77B8gFS_G3zgk4';
 
 const vapidKeys = webpush.generateVAPIDKeys();
 
-webpush.setGCMAPIKey(apiKey);
 
-webpush.setVapidDetails(
-  'mailto:sgwrryusk@gmail.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
-var privateKey = fs.readFile('privateKey/privateKey.txt');
-var publicKey = fs.readFile('publicKey/publicKey.txt');
-console.log(privateKey);
+
+var privateKey = vapidKeys.privateKey;
+fs.writeFile('privateKey/privateKey.txt', privateKey);
+var publicKey = vapidKeys.publicKey;
+fs.writeFile('publicKey/publicKey.txt', publicKey);
+
 const options = {
   gcmAPIKey: apiKey,
   vapidDetails: {
@@ -38,15 +35,24 @@ http.createServer(function (req, res) {
     }
     var privateKey = fs.readFileSync('privateKey/privateKey.txt', 'utf-8');
     var publicKey = fs.readFileSync('publicKey/publicKey.txt', 'utf-8');
+
+    webpush.setGCMAPIKey(apiKey);
+    webpush.setVapidDetails(
+      'mailto:sgwrryusk@gmail.com',
+      publicKey,
+      privateKey
+    );
     
-    const options = {
+    /*const options = {
       gcmAPIKey: apiKey,
       vapidDetails: {
         subject: 'mailto:sgwrryusk@gmail.com',
         publicKey: publicKey,
         privateKey: privateKey,
-      }
-    };
+      },
+      TTL: 86400
+    };*/
+
     const pushSubscription = {
       endpoint : jsonObj.endpoint,
       keys: {
@@ -54,16 +60,22 @@ http.createServer(function (req, res) {
         p256dh : jsonObj.p256dh
       }  
     };
-    
-    var encryptedData = JSON.stringify(webpush.encrypt(
-      pushSubscription.keys.p256dh,
-      pushSubscription.keys.auth,
+    const payload = JSON.stringify(webpush.encrypt(
+      jsonObj.p256dh,
+      jsonObj.auth,
       'push_test'
     ));
-
-    const detail = webpush.sendNotification(pushSubscription, 'push_Test', options);
-    console.log(detail);
+    
+    var details = webpush.generateRequestDetails(pushSubscription, 'push_Test', options);
+    console.log(details);
+    //fetch(jsonObj.endpoint, pushSubscription).then(function(result){console.log(result)});
+    try{
+      //var details = webpush.sendNotification(pushSubscription, payload, options).then(function(result){console.log(result)}).catch(function(error){console.log(error)});
+    }catch(error){
+      console.log(error);
+    }
   });
+
   res.writeHead(200, {
     'Content-Type': 'text/json',
     'Access-Control-Allow-Origin': 'http://localhost:8080',

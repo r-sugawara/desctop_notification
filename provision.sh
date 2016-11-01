@@ -18,3 +18,4 @@ npm install -g node-fetch --save
 npm install -g express --save
 npm install -g express-generator --save
 npm install -g request --save
+npm install -g child_process --save
