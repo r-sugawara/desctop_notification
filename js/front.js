@@ -3,6 +3,7 @@ var subscription = null;
 window.addEventListener('load', function() {
     document.getElementById('register').addEventListener('click', register, false);
     document.getElementById('push').addEventListener('click', setPush , false);
+    document.getElementById('send-message').addEventListener('click', sendMessage , false);
     navigator.serviceWorker.ready.then(checkPush);
 }, false);
 
@@ -36,6 +37,7 @@ function setSubscription(s) {
         p.textContent = 'プッシュ通知を解除する';
         p.disabled = false;
         registerNotification(s);
+        document.getElementById('send-message').disabled = false;
     }
 }
 
@@ -45,6 +47,7 @@ function resetSubscription() {
     var p = document.getElementById('push');
     p.textContent = 'プッシュ通知を有効にする';
     p.disabled = false;
+    document.getElementById('send-message').disabled = true;
 }
 
 function setPush() {
@@ -90,20 +93,26 @@ function registerNotification(s) {
 }
 
 
-navigator.serviceWorker.ready.then(function(sw) {
-  sw.pushManager.getSubscription().then(function(sub){
-    fetch('http://localhost:8000', {
-      credentials: 'include',
-      method: 'POST',
-      headers: { 'Content-Type': 'multipart/form-data; charset=UTF-8' },
-      body: JSON.stringify({
-        endpoint: sub.endpoint,
-        p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
-        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth')))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-      })
+function sendMessage(){
+  var message = document.getElementById('message').value;
+  var title = document.getElementById('title').value;
+  navigator.serviceWorker.ready.then(function(sw) {
+    sw.pushManager.getSubscription().then(function(sub){
+      fetch('http://localhost:8000', {
+        credentials: 'include',
+        method: 'POST',
+        headers: { 'Content-Type': 'multipart/form-data; charset=UTF-8' },
+        body: JSON.stringify({
+          title: title,
+          message: message,
+          endpoint: sub.endpoint,
+          p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g, '-').replace(/\//g, '_'),
+          auth: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth')))).replace(/\+/g, '-').replace(/\//g, '_')
+        })
+      });
     });
   });
-});
+}
 
 function decodeBase64URL(data) {
   if(typeof data !== 'string')

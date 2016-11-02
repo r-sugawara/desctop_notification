@@ -1,12 +1,12 @@
 self.addEventListener('push', function(evt) {
-  var data = evt.data.text();
-  console.log(data);
+  var payload = evt.data.text();
+  var data = JSON.parse(payload);
   evt.waitUntil(
     self.registration.showNotification(
-      '通知が来たよ!',
+      data.title,
       {
         icon: '/image/mikan.jpg',
-        body: data
+        body: data.message
       }
     )
   );

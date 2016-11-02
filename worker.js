@@ -27,6 +27,7 @@ http.createServer(function (req, res) {
   var body = '';
 
   req.on('data', function (chunk) {
+    console.log('received a request..');
     body += chunk;
     jsonObj = JSON.parse(body);
     
@@ -60,18 +61,18 @@ http.createServer(function (req, res) {
         p256dh : jsonObj.p256dh
       }  
     };
-    const payload = JSON.stringify(webpush.encrypt(
-      jsonObj.p256dh,
-      jsonObj.auth,
-      'push_test'
-    ));
+    
+    const payload = JSON.stringify({
+      title: jsonObj.title,
+      message: jsonObj.message
+    });
 
     
-  webpush.sendNotification(pushSubscription, 'testest', options).then(function(result){
-    console.log(result);
-  }).catch(function(error){
-    console.log(error);
-  });
+    webpush.sendNotification(pushSubscription, payload, options).then(function(result){
+      console.log(result);
+    }).catch(function(error){
+      console.log(error);
+    });
 
   });
 

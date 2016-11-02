@@ -9,6 +9,17 @@
   <body>
     <button id="register">インストール!</button>
     <button id="push" disabled>プッシュ通知を有効にする</button>
+    <div id="input-area">
+    	<div id="title-area">
+    		<p>メッセージタイトル</p>
+    		<input type="text" id="title">
+    	</div>
+    	<div id="message-area">
+    		<p>メッセージ本文</p>
+			<textarea id="message"></textarea>	
+    	</div>
+    	<button id="send-message">通知を送る</button>
+    </div>
   </body>
   <footer>
 	<script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
